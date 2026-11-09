@@ -1,0 +1,30 @@
+use super::memory::Memory;
+use windows::Win32::Foundation::HANDLE;
+use windows::core::Result;
+
+pub struct Address {}
+
+impl Address {
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    pub fn calculate_address(
+        handle: HANDLE,
+        base_address: usize,
+        offsets: &[i32],
+    ) -> Result<usize> {
+        let offsets_count = offsets.len();
+        unsafe {
+            let base_value = Memory::read_from::<i32>(handle, base_address)?;
+            let mut current = base_value;
+            for i in 0..offsets_count {
+                current += offsets[i];
+                if i < offsets_count - 1 {
+                    current = Memory::read_from::<i32>(handle, current as usize)?;
+                }
+            }
+            Ok(current as usize)
+        }
+    }
+}
