@@ -3,7 +3,7 @@ use super::memory::Memory;
 use windows::Win32::Foundation::HANDLE;
 use windows::core::Result;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Address(pub Option<usize>);
 
 impl Address {

@@ -156,13 +156,13 @@ impl Memory {
     pub unsafe fn scan_pattern(
         handle: HANDLE,
         pattern: &[u8],
-        start: usize,
-        end: usize,
-    ) -> Vec<usize> {
+        start: Address,
+        end: Address,
+    ) -> Vec<Address> {
         let mut collect = Vec::new();
         let mut memory_info = MemoryInfo::default();
         let mut current = start;
-        while current < end {
+        while current.0 < end.0 {
             if Memory::is_memory_readable(handle, current.into(), &mut memory_info) {
                 unsafe {
                     let bytes = match Memory::read_assembly(
@@ -172,24 +172,24 @@ impl Memory {
                     ) {
                         Ok(bytes) => bytes,
                         Err(_) => {
-                            current = memory_info.base_address + memory_info.region_size;
+                            current = (memory_info.base_address + memory_info.region_size).into();
                             continue;
                         }
                     };
 
                     let patters_index = brute_force_all(&bytes, pattern);
                     for index in patters_index {
-                        collect.push(memory_info.base_address + index);
+                        collect.push((memory_info.base_address + index).into());
                     }
                 }
             }
-            current = memory_info.base_address + memory_info.region_size;
+            current = (memory_info.base_address + memory_info.region_size).into();
         }
         collect
     }
 }
 
-pub fn brute_force_all(text: &[u8], pattern: &[u8]) -> Vec<usize> {
+fn brute_force_all(text: &[u8], pattern: &[u8]) -> Vec<usize> {
     let mut collect = Vec::new();
     let text_len = text.len();
     let pattern_len = pattern.len();
@@ -197,7 +197,7 @@ pub fn brute_force_all(text: &[u8], pattern: &[u8]) -> Vec<usize> {
     let mut i = 0;
     let mut j = 0;
     while i < text_len && j < pattern_len {
-        if text[i] == pattern[j] {
+        if text[i] == pattern[j] || pattern[j] == 0xFF {
             i += 1;
             j += 1;
             if j == pattern_len {
@@ -217,7 +217,11 @@ impl Memory {
     pub fn bytes_string_to_vec_u8(pattern: &str) -> Vec<u8> {
         pattern
             .split_whitespace()
-            .map(|s| u8::from_str_radix(s, 16).unwrap())
+            .map(|s| match u8::from_str_radix(s, 16) {
+                Ok(value) => value,
+                Err(_) => 0xFF
+            })
+
             .collect()
     }
 }

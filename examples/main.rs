@@ -2,12 +2,16 @@ use game_memory_tool::core::*;
 
 fn main() -> Result<()> {
     let process = Core::new("main.exe").unwrap();
-    println!("{}", process.pid().unwrap());    
+    println!("PID: {}", process.pid().unwrap());
 
-    let pattern = String::from("86");    
-    let address = process.scan_pattern(&bytes_string_to_vec_u8(&pattern), 0x000000000, 0xFFFFFFFF);
+    let pattern = "86 ??";
+    let address = process.scan_pattern(
+        &bytes_string_to_vec_u8(&pattern),
+        Address(Some(0x00000000)),
+        0xFFFFFFFFusize.into(),
+    );
     for addr in address {
-        println!("{:08X}", addr);
+        println!("Found address: {} ", addr);
     }
 
     println!("{}", Address(None));

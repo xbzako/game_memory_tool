@@ -38,7 +38,7 @@ impl<'a> Core<'a> {
         unsafe { self.memory.write_assembly(address, bytes) }
     }
 
-    pub fn scan_pattern(&self, pattern: &[u8], start: usize, end: usize) -> Vec<usize> {
+    pub fn scan_pattern(&self, pattern: &[u8], start: Address, end: Address) -> Vec<Address> {
         unsafe { Memory::scan_pattern(self.handle(), pattern, start, end) }
     }
 }
