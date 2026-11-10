@@ -1,3 +1,11 @@
+## [0.2.1] - 2026-11-10
+### Changed
+
+### Fixed
+Corrected the error description in CHANGELOG.md of version 0.2.0 from 'The feature code scanning method adds support for feature codes' to 'The feature code scanning method adds support for wildcards'<br>
+修改了 0.2.0 版本 CHANGELOG.md 里的错误描述"特征码扫描方法增加了对特征码的支持" 为 "特征码扫描方法增加了对通配符的支持"
+
+
 ## [0.2.0] - 2026-11-10
 ### Changed
 Changed the type of many function or method address parameters from usize to Address<br>
