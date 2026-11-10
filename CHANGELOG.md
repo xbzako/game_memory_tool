@@ -14,8 +14,8 @@ Changed the type of many function or method address parameters from usize to Add
 Added a lot of trait implementations for the Address type in conversations.rs<br>
 增加了 conversations.rs 里面实现了许多关于 Address 类型的 trait
 
-The feature code scanning method now adds support for feature codes<br>
-特征码扫描方法增加了对特征码的支持
+The feature code scanning method has added support for wildcards<br>
+特征码扫描方法增加了对通配符的支持
 
 ### Fixed
 Fixed a crash caused by the feature code scanning method mistakenly thinking some addresses were readable<br>
