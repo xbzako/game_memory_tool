@@ -9,5 +9,6 @@ fn main() -> Result<()> {
     for addr in address {
         println!("{:08X}", addr);
     }
+
     Ok(())
 }

@@ -1,3 +1,4 @@
+// use std::fmt::Display;
 use std::os::raw::c_void;
 use windows::Win32::Foundation::HANDLE;
 use windows::Win32::System::Diagnostics::Debug::{ReadProcessMemory, WriteProcessMemory};
@@ -11,19 +12,21 @@ use windows::Win32::System::Memory::{
     PAGE_READWRITE, PAGE_WRITECOPY, VirtualQueryEx,
 };
 
+use crate::Address;
+
 pub struct Memory {
     handle: HANDLE,
 }
 
 pub struct MemoryInfo {
-    pub base_address: usize,
+    pub base_address: Address,
     pub region_size: usize,
 }
 
 impl Default for MemoryInfo {
     fn default() -> Self {
         Self {
-            base_address: 0x00000000,
+            base_address: Address(0x00000000),
             region_size: 0,
         }
     }
@@ -108,20 +111,20 @@ impl Memory {
 
     pub fn is_memory_readable(
         handle: HANDLE,
-        address: usize,
+        address: Address,
         memory_info: &mut MemoryInfo,
     ) -> bool {
         let mut memory_basic_information = MEMORY_BASIC_INFORMATION::default();
         let read_bytes = unsafe {
             VirtualQueryEx(
                 handle,
-                Some(address as *const c_void),
+                Some(address.into()),
                 &mut memory_basic_information,
                 size_of::<MEMORY_BASIC_INFORMATION>(),
             )
         };
 
-        memory_info.base_address = memory_basic_information.BaseAddress as usize;
+        memory_info.base_address = memory_basic_information.BaseAddress.into();
         memory_info.region_size = memory_basic_information.RegionSize;
 
         if read_bytes == 0 {
@@ -161,11 +164,11 @@ impl Memory {
         let mut memory_info = MemoryInfo::default();
         let mut current = start;
         while current < end {
-            if Memory::is_memory_readable(handle, current, &mut memory_info) {
+            if Memory::is_memory_readable(handle, current.into(), &mut memory_info) {
                 unsafe {
                     let bytes = match Memory::read_assembly(
                         handle,
-                        memory_info.base_address,
+                        memory_info.base_address.into(),
                         memory_info.region_size,
                     ) {
                         Ok(bytes) => bytes,
