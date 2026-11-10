@@ -163,12 +163,17 @@ impl Memory {
         while current < end {
             if Memory::is_memory_readable(handle, current, &mut memory_info) {
                 unsafe {
-                    let bytes = Memory::read_assembly(
+                    let bytes = match Memory::read_assembly(
                         handle,
                         memory_info.base_address,
                         memory_info.region_size,
-                    )
-                    .expect("读取字节错误");
+                    ) {
+                        Ok(bytes) => bytes,
+                        Err(_) => {
+                            current = memory_info.base_address + memory_info.region_size;
+                            continue;
+                        }
+                    };
 
                     let patters_index = brute_force_all(&bytes, pattern);
                     for index in patters_index {
