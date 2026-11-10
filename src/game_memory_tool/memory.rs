@@ -1,4 +1,3 @@
-// use std::fmt::Display;
 use std::os::raw::c_void;
 use windows::Win32::Foundation::HANDLE;
 use windows::Win32::System::Diagnostics::Debug::{ReadProcessMemory, WriteProcessMemory};
@@ -26,7 +25,7 @@ pub struct MemoryInfo {
 impl Default for MemoryInfo {
     fn default() -> Self {
         Self {
-            base_address: Address(0x00000000),
+            base_address: Address(None),
             region_size: 0,
         }
     }
@@ -37,12 +36,12 @@ impl Memory {
         Self { handle }
     }
 
-    pub unsafe fn read<T>(&self, address: usize) -> Result<T> {
+    pub unsafe fn read<T>(&self, address: Address) -> Result<T> {
         let mut buffer = MaybeUninit::<T>::uninit();
         unsafe {
             ReadProcessMemory(
                 self.handle,
-                address as *const c_void,
+                address.into(),
                 buffer.as_mut_ptr() as *mut c_void,
                 size_of::<T>(),
                 None,
@@ -51,12 +50,12 @@ impl Memory {
         unsafe { Ok(buffer.assume_init()) }
     }
 
-    pub unsafe fn write<T>(&self, address: usize, write_value: T) -> Result<usize> {
+    pub unsafe fn write<T>(&self, address: Address, write_value: T) -> Result<usize> {
         let mut write_bytes = 0;
         unsafe {
             WriteProcessMemory(
                 self.handle,
-                address as *mut c_void,
+                address.into(),
                 &write_value as *const T as *const c_void,
                 size_of::<T>(),
                 Some(&mut write_bytes),
@@ -65,13 +64,13 @@ impl Memory {
         Ok(write_bytes)
     }
 
-    pub unsafe fn read_assembly(handle: HANDLE, address: usize, size: usize) -> Result<Vec<u8>> {
+    pub unsafe fn read_assembly(handle: HANDLE, address: Address, size: usize) -> Result<Vec<u8>> {
         let mut read_bytes = vec![0u8; size];
         let mut bytes_read = 0;
         unsafe {
             ReadProcessMemory(
                 handle,
-                address as *const c_void,
+                address.into(),
                 read_bytes.as_mut_ptr() as *mut c_void,
                 size,
                 Some(&mut bytes_read),
@@ -81,12 +80,12 @@ impl Memory {
         Ok(read_bytes)
     }
 
-    pub unsafe fn read_from<T>(handle: HANDLE, address: usize) -> Result<T> {
+    pub unsafe fn read_from<T>(handle: HANDLE, address: Address) -> Result<T> {
         let mut buffer = MaybeUninit::<T>::uninit();
         unsafe {
             ReadProcessMemory(
                 handle,
-                address as *const c_void,
+                address.into(),
                 buffer.as_mut_ptr() as *mut c_void,
                 size_of::<T>(),
                 None,
@@ -95,12 +94,12 @@ impl Memory {
         unsafe { Ok(buffer.assume_init()) }
     }
 
-    pub unsafe fn write_assembly(&self, address: usize, bytes: &[u8]) -> Result<usize> {
+    pub unsafe fn write_assembly(&self, address: Address, bytes: &[u8]) -> Result<usize> {
         let mut write_bytes = 0;
         unsafe {
             WriteProcessMemory(
                 self.handle,
-                address as *mut c_void,
+                address.into(),
                 bytes.as_ptr() as *const c_void,
                 bytes.len(),
                 Some(&mut write_bytes),

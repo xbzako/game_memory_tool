@@ -1,0 +1,2 @@
+# game_memory_tool
+"An unsafe crate, a personal-use crate, made just for convenience, only supports Windows, only for manipulating single-player game processes, the code is very unsafe. If you cargo add this crate, it is recommended to use it only in completely single-player games."

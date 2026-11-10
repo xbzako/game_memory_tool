@@ -10,5 +10,6 @@ fn main() -> Result<()> {
         println!("{:08X}", addr);
     }
 
+    println!("{}", Address(None));
     Ok(())
 }
